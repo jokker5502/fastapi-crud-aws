@@ -53,6 +53,20 @@ def update_estudiante(estudiante_id: int, estudiante_actualizado: Estudiante):
     raise HTTPException(status_code=404, detail="Estudiante no encontrado")
 
 
+@app.post("/estudiantes/", response_model=Estudiante)
+def crear_estudiante(estudiante: Estudiante):
+    """
+    Crea un nuevo estudiante y lo agrega a la base de datos simulada.
+    """
+    # Verificar si el estudiante ya existe por el ID
+    for e in db_estudiantes:
+        if e.id == estudiante.id:
+            raise HTTPException(status_code=400, detail="El estudiante con ese ID ya existe.")
+    
+    db_estudiantes.append(estudiante)
+    return estudiante
+
+
 @app.delete("/estudiantes/{estudiante_id}", response_model=Estudiante)
 def delete_estudiante(estudiante_id: int):
     """
