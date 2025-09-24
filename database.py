@@ -9,7 +9,7 @@ load_dotenv()
 
 # --- URL de Conexión a la Base de Datos ---
 DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "uide.asu.123")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "Uide.asu.123")
 DB_HOST = os.getenv("DB_HOST", "mi-api-database.c07yeca6uwgy.us-east-1.rds.amazonaws.com")
 DB_NAME = os.getenv("DB_NAME", "postgres")
 DB_PORT = os.getenv("DB_PORT", "5432")
