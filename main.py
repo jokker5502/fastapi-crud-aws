@@ -1,27 +1,28 @@
-# main.py
-from typing import List
-from fastapi import FastAPI, Depends, HTTPException
-from sqlmodel import select
-from database import get_session, create_db_and_tables
-from models import Cliente, Factura
+from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from db import create_all_tables
+from routes import users  
 
-app = FastAPI(title="API con RDS")
+# El 'lifespan' es la forma moderna de manejar eventos de inicio y apagado.
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Iniciando aplicación...")
+    # Llamamos a la función para crear tablas (sin el yield)
+    # Nota: El 'yield' está dentro de la función original en db.py
+    create_all_tables(app).__next__() 
+    yield
+    print("Apagando aplicación...")
 
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
+app = FastAPI(
+    title="API con RDS y Rutas Modulares",
+    description="Laboratorio con base de datos en AWS RDS.",
+    lifespan=lifespan
+)
 
-# Endpoints para Clientes
-@app.post("/clientes/", response_model=Cliente)
-def create_cliente(cliente: Cliente, session = Depends(get_session)):
-    session.add(cliente)
-    session.commit()
-    session.refresh(cliente)
-    return cliente
+# Aquí "incluimos" todas las rutas que definimos en el archivo routes/users.py
+# en nuestra aplicación principal.
+app.include_router(users.router)
 
-@app.get("/clientes/", response_model=List[Cliente])
-def read_clientes(session = Depends(get_session)):
-    clientes = session.exec(select(Cliente)).all()
-    return clientes
-
-# (Puedes añadir los demás endpoints de CRUD aquí: GET por ID, PUT, DELETE)
+@app.get("/")
+def read_root():
+    return {"mensaje": "Bienvenido a la API"}
